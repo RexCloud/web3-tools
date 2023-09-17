@@ -9,8 +9,8 @@ import { publicProvider } from 'wagmi/providers/public';
 const chainListSorted = Object.values(chainList)
 
 for (let chainIdx in chainListSorted) {
-  // chainListSorted[chainIdx].rpcUrls.default.http = [`envVercelUrlTemp/api/chains/${chainListSorted[chainIdx].id}`]
-  chainListSorted[chainIdx].rpcUrls.public.http = [`envVercelUrlTemp/api/chains/${chainListSorted[chainIdx].id}`]
+  // chainListSorted[chainIdx].rpcUrls.default.http = [`https://${process.env.VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
+  chainListSorted[chainIdx].rpcUrls.public.http = [`https://${process.env.VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
 }
 
 const { chains, publicClient } = configureChains(
