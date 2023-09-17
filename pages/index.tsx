@@ -1,5 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 
 const Home: NextPage = () => {
@@ -25,10 +26,10 @@ const Home: NextPage = () => {
         </p>
 
         <div className={styles.grid}>
-          <a className={styles.card} href="/raw-tx">
+          <Link className={styles.card} href="/raw-tx">
             <h2>Raw tx</h2>
             <p>Sign and get raw transaction</p>
-          </a>
+          </Link>
         </div>
       </main>
     </div>
