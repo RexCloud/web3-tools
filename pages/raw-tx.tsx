@@ -121,7 +121,7 @@ const RawTx: NextPage = () => {
 
     return (
         <div className="h-fit py-8 sm:py-16 justify-center flex xs:flex-col lg:flex-row">
-            <div className="h-full sm:max-h-[742px] flex flex-col justify-center text-lg border p-8 border-slate-500 border-r-[1px] lg:border-r-0 sm:w-full lg:w-auto">
+            <div className="h-full sm:max-h-[742px] flex flex-col justify-center text-lg border xs:border-x-0 xs:border-b-0 lg:border p-8 border-slate-500 border-r-[1px] lg:border-r-0 sm:w-full lg:w-auto">
                 <div className="flex flex-col mb-5 sm:flex-row">
                     <div className="flex flex-col">
                         <label className="text-slate-50 font-semibold pb-1">To</label>
@@ -187,7 +187,7 @@ const RawTx: NextPage = () => {
                     </>
                 }
             </div>
-            <div className="h-auto w-auto flex flex-col items-center text-slate-50 border pt-8 border-slate-500">
+            <div className="h-auto w-auto flex flex-col items-center text-slate-50 border xs:border-x-0 lg:border pt-8 border-slate-500">
                 <div className="px-8 pb-8"><ConnectButton chainStatus={"none"} accountStatus={"address"} showBalance={false}/></div>
                 <div className="h-full max-h-[620px] w-full border-t-[1px] bg-slate-800 bg-opacity-20 border-collapse border-slate-500 overflow-y-scroll">
                     <table className="w-full text-left">
