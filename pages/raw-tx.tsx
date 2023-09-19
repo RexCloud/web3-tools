@@ -171,7 +171,7 @@ const RawTx: NextPage = () => {
                 </div>
                 { domLoaded && chain && chain.id &&
                     <div className="flex flex-col sm:w-[506px]">
-                        <p className="text-slate-50 font-semibold pb-1">Chain ID: {chain.id}</p>
+                        <p className="text-slate-50 font-semibold pb-1">Chain ID: {chain.id} ({chain.name})</p>
                         <p className="text-red-400 font-semibold pb-1">Make sure your RPC URL is {chain.rpcUrls.public.http[0]}</p>
                         <p className="text-red-400 font-semibold pb-1">Balance should be 1000 {chain.nativeCurrency.symbol}</p>
                     </div>

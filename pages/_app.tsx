@@ -38,7 +38,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} modalSize='compact' theme={lightTheme({accentColor: "#4B5563", borderRadius: "medium"})}>
         <div className="bg-gray-800 bg-opacity-95 min-h-screen">
-          <nav className="bg-gray-800 h-16 flex justify-between items-center pl-10 pr-10 shadow-xl shadow-gray-700 border-b-2 border-slate-500">
+          <nav className="bg-gray-800 h-16 flex justify-between items-center pl-10 pr-10 border-b-2 border-slate-500">
             <div className="w-8 h-8"></div>
             <Link href="/" className="justify-items-center focus:ring focus:outline-none">
                 <h6 className="text-slate-50 font-mono font-semibold text-2xl sm:text-3xl">RxCld Web3 Tools</h6>
