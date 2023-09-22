@@ -6,6 +6,8 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import { useSendTransaction, usePrepareSendTransaction, useNetwork, useAccount } from "wagmi";
 import { parseEther } from "viem";
+import Modal from "../components/Modal";
+import { signTransaction } from "viem/dist/types/actions/wallet/signTransaction";
 
 const RawTx: NextPage = () => {
 
@@ -109,16 +111,8 @@ const RawTx: NextPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [rawTx])
 
-    function confirmSign() {
-        if (domLoaded && !chain) {
-            const buttons = document.getElementsByTagName("button")
-            for (const btnIdx in buttons) buttons[btnIdx].innerText == "Connect Wallet" && buttons[btnIdx].click()
-            return
-        }
-        const msg = `Please make sure that balance in your wallet shows 1000 ${chain?.nativeCurrency.symbol}\r\rIf the balance shown is not 1000 ${chain?.nativeCurrency.symbol}\rThen you are on wrong RPC and your transaction may be broadcasted\r\rAdd network with chain ID: ${chain && chain.id} and RPC: ${chain?.rpcUrls.public.http[0]}\r\rType "confirm" to continue`
-        const userMsg = prompt(msg)
-        userMsg?.toLocaleLowerCase() == "confirm" && sendTransaction?.()
-    }
+    const [confirmSign, setConfirmSign] = useState(false)
+    const [confirmSignVisible, setConfirmSignVisible] = useState(false)
 
     return (
         <div>
@@ -130,6 +124,19 @@ const RawTx: NextPage = () => {
                 />
                 <link href="/favicon.ico" rel="icon" />
             </Head>
+            { domLoaded &&
+                <Modal visible={confirmSignVisible} onClose={()=>{setConfirmSign(false); setConfirmSignVisible(false)}}>
+                    <p className="font-semibold pb-1">Please make sure that balance in your wallet shows 1000 {chain?.nativeCurrency.symbol}</p>
+                    <p className="font-semibold pb-1">If the balance shown is not 1000 {chain?.nativeCurrency.symbol}</p>
+                    <p className="font-semibold pb-1">Then you are using wrong RPC and your transaction may be broadcasted</p>
+                    <p className="font-semibold pb-4">Add network with chain ID: {chain && chain.id} and RPC: {chain?.rpcUrls.public.http[0]}</p>
+                    <div className="flex-row mb-4">
+                        <input type="checkbox" id="confirm-sign" className={`${!confirmSign && 'opacity-90'} hover:opacity-100 focus-visible:ring focus-visible:outline-none`} value={!confirmSign ? 0 : 1} onChange={e => setConfirmSign(e.target.checked)}></input>
+                        <label htmlFor="confirm-sign" className={`font-semibold pb-1 pl-2 ${!confirmSign && 'text-opacity-90 text-slate-400 hover:text-opacity-100 hover:text-slate-50'}`}>I confirm that network in my wallet has this RPC URL</label>
+                    </div>
+                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-40 disabled:active:bg-gray-600" disabled={!confirmSign} onClick={()=>{setConfirmSign(false); setConfirmSignVisible(false); sendTransaction?.()}}>Continue</button>
+                </Modal>
+            }
             <div className="h-fit py-8 sm:py-16 justify-center flex xs:flex-col lg:flex-row">
                 <div className="h-full sm:max-h-[742px] flex flex-col justify-center text-lg border xs:border-x-0 xs:border-b-0 lg:border p-8 border-slate-500 border-r-[1px] lg:border-r-0 sm:w-full lg:w-auto">
                     <div className="flex flex-col max-sm:mb-5 sm:flex-row">
@@ -186,7 +193,7 @@ const RawTx: NextPage = () => {
                             <p className="text-red-400 font-semibold pb-1">Balance should be 1000 {chain.nativeCurrency.symbol}</p>
                         </div>
                     }
-                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={confirmSign}>{!isLoading ? "Sign" : "Signing"}</button>
+                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={()=>sendTransaction && setConfirmSignVisible(true)}>{!isLoading ? "Sign" : "Signing"}</button>
                     { rawTx &&
                         <>
                             <div className="flex flex-row">
