@@ -11,8 +11,7 @@ const chainListSorted = JSON.parse(JSON.stringify(Object.values(chainList)))
 
 for (let chainIdx in chainListSorted) {
   // chainListSorted[chainIdx].rpcUrls.default.http = [`https://${process.env.VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
-  // chainListSorted[chainIdx].rpcUrls.public.http = [`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
-  chainListSorted[chainIdx].rpcUrls.public.http = [`http://localhost:3000/api/chains/${chainListSorted[chainIdx].id}`]
+  chainListSorted[chainIdx].rpcUrls.public.http = [`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
 }
 
 const { chains, publicClient } = configureChains(

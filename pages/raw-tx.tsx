@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { useSendTransaction, usePrepareSendTransaction, useNetwork, useAccount } from "wagmi";
 import { parseEther } from "viem";
 import Modal from "../components/Modal";
-import { signTransaction } from "viem/dist/types/actions/wallet/signTransaction";
 
 const RawTx: NextPage = () => {
 
@@ -114,6 +113,15 @@ const RawTx: NextPage = () => {
     const [confirmSign, setConfirmSign] = useState(false)
     const [confirmSignVisible, setConfirmSignVisible] = useState(false)
 
+    function handleSign() {
+        if (domLoaded && !chain) {
+            const buttons = document.getElementsByTagName("button")
+            for (const btnIdx in buttons) buttons[btnIdx].innerText == "Connect Wallet" && buttons[btnIdx].click()
+            return
+        }
+        sendTransaction && setConfirmSignVisible(true)
+    }
+
     return (
         <div>
             <Head>
@@ -193,7 +201,7 @@ const RawTx: NextPage = () => {
                             <p className="text-red-400 font-semibold pb-1">Balance should be 1000 {chain.nativeCurrency.symbol}</p>
                         </div>
                     }
-                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={()=>sendTransaction && setConfirmSignVisible(true)}>{!isLoading ? "Sign" : "Signing"}</button>
+                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={()=>handleSign()}>{!isLoading ? "Sign" : "Signing"}</button>
                     { rawTx &&
                         <>
                             <div className="flex flex-row">
@@ -218,8 +226,8 @@ const RawTx: NextPage = () => {
                             }
                             { signedTxs.length > 0 &&
                                 signedTxs.map((signedTx, index) => {
-                                    return <tbody>
-                                        <tr className="border-b-[1px] border-slate-500 odd:bg-slate-800 odd:bg-opacity-25" key={index}>
+                                    return <tbody key={index}>
+                                        <tr className="border-b-[1px] border-slate-500 odd:bg-slate-800 odd:bg-opacity-25">
                                             <td className="w-56 sm:w-[500px] md:w-[600px] lg:w-72 px-4 py-2 border-r-[1px] border-slate-500 flex flex-row items-center">
                                                 <p className="w-56 sm:w-[500px] md:w-[600px] lg:w-64 truncate">{signedTx.rawTx}</p>
                                                 <svg className="ml-auto opacity-20 hover:opacity-100 active:opacity-50" onClick={()=>navigator.clipboard.writeText(signedTx.rawTx)} fill="#ffffff" width="16px" height="16px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M9.101,7l8.899,0c1.857,-0 3.637,0.737 4.95,2.05c1.313,1.313 2.05,3.093 2.05,4.95l0,8.899c0.953,-0.195 1.837,-0.665 2.536,-1.363c0.937,-0.938 1.464,-2.21 1.464,-3.536c0,-2.977 0,-7.023 0,-10c0,-1.326 -0.527,-2.598 -1.464,-3.536c-0.938,-0.937 -2.21,-1.464 -3.536,-1.464c-2.977,0 -7.023,0 -10,0c-1.326,-0 -2.598,0.527 -3.536,1.464c-0.698,0.699 -1.168,1.583 -1.363,2.536Z"></path><path d="M23,14c0,-1.326 -0.527,-2.598 -1.464,-3.536c-0.938,-0.937 -2.21,-1.464 -3.536,-1.464c-2.977,0 -7.023,0 -10,0c-1.326,-0 -2.598,0.527 -3.536,1.464c-0.937,0.938 -1.464,2.21 -1.464,3.536c0,2.977 0,7.023 0,10c-0,1.326 0.527,2.598 1.464,3.536c0.938,0.937 2.21,1.464 3.536,1.464c2.977,-0 7.023,-0 10,-0c1.326,0 2.598,-0.527 3.536,-1.464c0.937,-0.938 1.464,-2.21 1.464,-3.536l0,-10Zm-15,10l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Zm0,-4l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Zm0,-4l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Z"></path><g id="Icon"></g></g></svg>
