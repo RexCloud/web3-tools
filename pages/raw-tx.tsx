@@ -149,7 +149,7 @@ const RawTx: NextPage = () => {
                     <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-40 disabled:active:bg-gray-600" disabled={!confirmSign} onClick={()=>{setConfirmSign(false); setConfirmSignVisible(false); sendTransaction?.()}}>Continue</button>
                 </Modal>
             }
-            { domLoaded && signedTxs.length && signedTxId > -1 &&
+            { domLoaded && signedTxId > -1 &&
                 <Modal visible={signedTxDetailsVisible} onClose={()=>{setSignedTxDetailsVisible(false); setSignedTxId(-1)}}>
                     <div className="flex flex-col  sm:flex-row">
                         <div className="flex flex-col">
