@@ -158,7 +158,7 @@ const RawTx: NextPage = () => {
                         </div>
                     </div>
                     <label className="text-slate-50 font-semibold pb-1">Data</label>
-                    <input className="w-auto mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={data} onChange={e => setInputHex(e.target.value, setInputData)}></input>
+                    <input className="w-auto mb-5 pl-1 pr-1 min-h-[32px] rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={data} onChange={e => setInputHex(e.target.value, setInputData)}></input>
                     <div className="flex flex-col mb-5 sm:flex-row">
                         <div className="flex flex-col">
                             <label className="text-slate-50 font-semibold pb-1">Tx Type</label>
@@ -201,7 +201,7 @@ const RawTx: NextPage = () => {
                             <p className="text-red-400 font-semibold pb-1">Balance should be 1000 {chain.nativeCurrency.symbol}</p>
                         </div>
                     }
-                    <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={()=>handleSign()}>{!isLoading ? "Sign" : "Signing"}</button>
+                    <button className="bg-gray-600 text-slate-50 font-semibold min-h-[36px] rounded-xl shadow-md shadow-gray-800 mt-4 mb-5 outline outline-slate-500 outline-0 focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-20 disabled:active:bg-gray-600" disabled={isLoading} onClick={()=>handleSign()}>{!isLoading ? "Sign" : "Signing"}</button>
                     { rawTx &&
                         <>
                             <div className="flex flex-row">
