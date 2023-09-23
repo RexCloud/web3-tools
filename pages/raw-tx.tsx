@@ -93,6 +93,7 @@ const RawTx: NextPage = () => {
         delete txParams.account
         delete txParams.mode
         setTxParams(txParams)
+        console.log(signedTxs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading])
 
@@ -112,7 +113,7 @@ const RawTx: NextPage = () => {
 
     const [confirmSign, setConfirmSign] = useState(false)
     const [confirmSignVisible, setConfirmSignVisible] = useState(false)
-
+    
     function handleSign() {
         if (domLoaded && !chain) {
             const buttons = document.getElementsByTagName("button")
@@ -121,6 +122,9 @@ const RawTx: NextPage = () => {
         }
         sendTransaction && setConfirmSignVisible(true)
     }
+
+    const [signedTxId, setSignedTxId] = useState(-1)
+    const [signedTxDetailsVisible, setSignedTxDetailsVisible] = useState(false)
 
     return (
         <div>
@@ -145,6 +149,61 @@ const RawTx: NextPage = () => {
                     <button className="bg-gray-600 text-slate-50 font-semibold h-9 rounded-xl focus-visible:ring focus-visible:outline-none active:bg-gray-700 disabled:opacity-40 disabled:active:bg-gray-600" disabled={!confirmSign} onClick={()=>{setConfirmSign(false); setConfirmSignVisible(false); sendTransaction?.()}}>Continue</button>
                 </Modal>
             }
+            { domLoaded && signedTxs.length && signedTxId > -1 &&
+                <Modal visible={signedTxDetailsVisible} onClose={()=>{setSignedTxDetailsVisible(false); setSignedTxId(-1)}}>
+                    <div className="flex flex-col  sm:flex-row">
+                        <div className="flex flex-col">
+                            <label className="text-slate-50 font-semibold pb-1">To</label>
+                            <input className="sm:w-[27.375rem] mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].to} disabled={true}></input>
+                        </div>
+                        <div className="flex flex-col sm:pl-6 w-full">
+                            <label className="text-slate-50 font-semibold pb-1">Value</label>
+                            <input className="w-full lg:w-24 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].value / 10**18} disabled={true}></input>
+                        </div>
+                    </div>
+                    <label className="text-slate-50 font-semibold pb-1">Data</label>
+                    <input className="w-auto mb-5 pl-1 pr-1 min-h-[32px] rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].data} disabled={true}></input>
+                    <div className="flex flex-col sm:flex-row">
+                        <div className="flex flex-col">
+                            <label className="text-slate-50 font-semibold pb-1">Tx Type</label>
+                            <select className="sm:w-24 mb-6 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].maxFeePerGas ? 1 : 0} disabled={true}> 
+                                <option value="0">Legacy</option>
+                                <option value="1">EIP-1559</option>
+                            </select>
+                        </div>
+                        { !signedTxs[signedTxId].maxFeePerGas ?
+                            <div className="flex flex-col sm:pl-6">
+                                <label className="text-slate-50 font-semibold pb-1">Gas Price</label>
+                                <input className="w-26 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].gasPrice ? signedTxs[signedTxId].gasPrice / 10**9 : 0} disabled={true}></input>
+                            </div> :
+                            <div className="flex flex-col sm:flex-row">
+                                <div className="flex flex-col mb-5 sm:pl-6">
+                                    <label className="text-slate-50 font-semibold pb-1">Max Fee</label>
+                                    <input className="w-26 pl-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].maxFeePerGas ? signedTxs[signedTxId].maxFeePerGas / 10**9 : 0} disabled={true}></input>
+                                </div>
+                                <div className="flex flex-col sm:pl-6">
+                                    <label className="text-slate-50 font-semibold pb-1">Max Priority Fee</label>
+                                    <input className="w-26 pl-1 h-8 mb-6 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].maxPriorityFeePerGas ? signedTxs[signedTxId].maxPriorityFeePerGas / 10**9 : 0} disabled={true}></input>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div className="flex flex-row">
+                        <div className="flex flex-col">
+                            <label className="text-slate-50 font-semibold pb-1">Nonce</label>
+                            <input className="w-24 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].nonce} disabled={true}></input>
+                        </div>
+                        <div className="flex flex-col pl-6">
+                            <label className="text-slate-50 font-semibold pb-1">Gas Limit</label>
+                            <input className="w-full sm:w-auto mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].gas} disabled={true}></input>
+                        </div>
+                    </div>
+                    <div className="flex flex-col">
+                        <label className="text-slate-50 font-semibold pb-1">Chain ID</label>
+                        <input className="sm:w-24 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={signedTxs[signedTxId].chainId} type="number" disabled={true}></input>
+                    </div>
+                </Modal>
+            }
             <div className="h-fit py-8 sm:py-16 justify-center flex xs:flex-col lg:flex-row">
                 <div className="h-full sm:max-h-[742px] flex flex-col justify-center text-lg border xs:border-x-0 xs:border-b-0 lg:border p-8 border-slate-500 border-r-[1px] lg:border-r-0 sm:w-full lg:w-auto">
                     <div className="flex flex-col max-sm:mb-5 sm:flex-row">
@@ -159,7 +218,7 @@ const RawTx: NextPage = () => {
                     </div>
                     <label className="text-slate-50 font-semibold pb-1">Data</label>
                     <input className="w-auto mb-5 pl-1 pr-1 min-h-[32px] rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={data} onChange={e => setInputHex(e.target.value, setInputData)}></input>
-                    <div className="flex flex-col mb-5 sm:flex-row">
+                    <div className="flex flex-col max-sm:mb-5 sm:flex-row">
                         <div className="flex flex-col">
                             <label className="text-slate-50 font-semibold pb-1">Tx Type</label>
                             <select className="sm:w-24 mb-5 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" onChange={e => {setTxType(Number(e.target.value)); setInputGasPrice(""); setInputMaxFee(""); setInputMaxPriorityFee("")}}> 
@@ -232,7 +291,9 @@ const RawTx: NextPage = () => {
                                                 <p className="w-56 sm:w-[500px] md:w-[600px] lg:w-64 truncate">{signedTx.rawTx}</p>
                                                 <svg className="ml-auto opacity-20 hover:opacity-100 active:opacity-50" onClick={()=>navigator.clipboard.writeText(signedTx.rawTx)} fill="#ffffff" width="16px" height="16px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M9.101,7l8.899,0c1.857,-0 3.637,0.737 4.95,2.05c1.313,1.313 2.05,3.093 2.05,4.95l0,8.899c0.953,-0.195 1.837,-0.665 2.536,-1.363c0.937,-0.938 1.464,-2.21 1.464,-3.536c0,-2.977 0,-7.023 0,-10c0,-1.326 -0.527,-2.598 -1.464,-3.536c-0.938,-0.937 -2.21,-1.464 -3.536,-1.464c-2.977,0 -7.023,0 -10,0c-1.326,-0 -2.598,0.527 -3.536,1.464c-0.698,0.699 -1.168,1.583 -1.363,2.536Z"></path><path d="M23,14c0,-1.326 -0.527,-2.598 -1.464,-3.536c-0.938,-0.937 -2.21,-1.464 -3.536,-1.464c-2.977,0 -7.023,0 -10,0c-1.326,-0 -2.598,0.527 -3.536,1.464c-0.937,0.938 -1.464,2.21 -1.464,3.536c0,2.977 0,7.023 0,10c-0,1.326 0.527,2.598 1.464,3.536c0.938,0.937 2.21,1.464 3.536,1.464c2.977,-0 7.023,-0 10,-0c1.326,0 2.598,-0.527 3.536,-1.464c0.937,-0.938 1.464,-2.21 1.464,-3.536l0,-10Zm-15,10l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Zm0,-4l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Zm0,-4l10,0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-10,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Z"></path><g id="Icon"></g></g></svg>
                                             </td>
-                                            <td className="px-4 py-2 text-center">view</td>
+                                            <td className="p-1">
+                                                <button className="bg-gray-600 bg-opacity-20 h-full w-full rounded-md font-semibold focus:ring focus:outline-none" onClick={()=>{setSignedTxId(index); setSignedTxDetailsVisible(true)}}>View</button>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 })
