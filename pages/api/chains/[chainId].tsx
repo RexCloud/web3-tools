@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { rpcUrls } from '../../_app';
 
-function createRespBody(chainId: number, method: string, params: [string, object]) {
+async function createRespBody(chainId: number, method: string, params: [string, object]) {
     interface IBody {
         jsonrpc: string;
         id: number;
@@ -18,18 +19,8 @@ function createRespBody(chainId: number, method: string, params: [string, object
         respBody.result = chainId
         return respBody
     }
-    else if (method == "eth_getBalance") {
+    if (method == "eth_getBalance") {
         respBody.result = `0x${(1000 * 10**18).toString(16)}`
-        return respBody
-    }
-    else if (method == "eth_blockNumber") {
-        respBody.result = "0x1"
-        return respBody
-    }
-    else if (method == "eth_getBlockByNumber") {
-        respBody.result = {
-            "baseFeePerGas": "0x0"
-        }
         return respBody
     }
     else if (method == "eth_sendRawTransaction") {
@@ -39,14 +30,34 @@ function createRespBody(chainId: number, method: string, params: [string, object
         respBody.error.rawTx = params
         return respBody
     }
+    else if (method == "eth_blockNumber" || method == "eth_getBlockByNumber" || method == "eth_getTransactionCount" || method == "eth_gasPrice") {
+        const options = {
+            method: "POST",
+            headers: { accept: "application/json", "content-type": "application/json" },
+            body: JSON.stringify({
+                id: 1,
+                jsonrpc: "2.0",
+                method: method,
+                params: params
+            })
+        };
+        try {
+            const response = await fetch(rpcUrls[chainId], options)
+            respBody = await response.json()
+        }
+        catch {
+            respBody.result = ""
+        }
+        return respBody
+    }
     else {
         respBody.result = ""
         return respBody
     }
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const chainId = Number(req.query.chainId)
-    const respBody = createRespBody(chainId, req.body.method, req.body.params)
+    const respBody = await createRespBody(chainId, req.body.method, req.body.params)
     res.json(respBody)
 }

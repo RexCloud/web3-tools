@@ -4,7 +4,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
-import { useSendTransaction, usePrepareSendTransaction, useNetwork, useAccount } from "wagmi";
+import { useSendTransaction, usePrepareSendTransaction, useNetwork, useAccount, useFeeData } from "wagmi";
 import { parseEther } from "viem";
 import Modal from "../components/Modal";
 
@@ -26,9 +26,11 @@ const RawTx: NextPage = () => {
         target(input.replace(/[^xa-fA-F0-9]/g, ""))
     }
 
-    const { address, isDisconnected } = useAccount()
+    const { address } = useAccount()
 
     const { chain } = useNetwork()
+    
+    const { data: feeData } = useFeeData()
 
     const { config } = usePrepareSendTransaction({
         to: to,
@@ -75,12 +77,6 @@ const RawTx: NextPage = () => {
     }, [chain])
 
     useEffect(() => {
-        if (!isDisconnected) return
-        setRawTx("")
-        setSignedTxs([])
-    }, [isDisconnected])
-
-    useEffect(() => {
         if (!isLoading) return
         const txParams = Object(config)
         txParams.chainId = chain && chain.id
@@ -95,9 +91,16 @@ const RawTx: NextPage = () => {
         setTxParams(txParams)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading])
+    
+    const [errorMsg, setErrorMsg] = useState("")
+    const [errorVisible, setErrorVisible] = useState(false)
 
     useEffect(() => {
-        error?.message.includes("rawTx") && setRawTx(error?.message.substring(error?.message.indexOf("rawTx") + 9, error?.message.indexOf('"]}}}')))
+        if (error?.message.includes("rawTx")) setRawTx(error?.message.substring(error?.message.indexOf("rawTx") + 9, error?.message.indexOf('"]}}}')))
+        else if (error?.message.includes("support EIP-1559")) {
+            setErrorMsg("Invalid transaction params: params specify an EIP-1559 transaction but the current network does not support EIP-1559")
+            setErrorVisible(true)
+        }
     }, [error])
 
     useEffect(() => {
@@ -203,6 +206,11 @@ const RawTx: NextPage = () => {
                     </div>
                 </Modal>
             }
+            { domLoaded && errorMsg &&
+                <Modal visible={errorVisible} onClose={()=>{setErrorVisible(false); setErrorMsg("")}}>
+                    <p className="font-semibold text-red-400 w-68 sm:w-96">{errorMsg}</p>
+                </Modal>
+            }
             <div className="h-fit py-8 sm:py-16 justify-center flex xs:flex-col lg:flex-row">
                 <div className="h-full sm:max-h-[742px] flex flex-col justify-center text-lg border xs:border-x-0 xs:border-b-0 lg:border p-8 border-slate-500 border-r-[1px] lg:border-r-0 sm:w-full lg:w-auto">
                     <div className="flex flex-col max-sm:mb-5 sm:flex-row">
@@ -222,22 +230,22 @@ const RawTx: NextPage = () => {
                             <label className="text-slate-50 font-semibold pb-1">Tx Type</label>
                             <select className="sm:w-24 mb-5 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" onChange={e => {setTxType(Number(e.target.value)); setInputGasPrice(""); setInputMaxFee(""); setInputMaxPriorityFee("")}}> 
                                 <option value="0">Legacy</option>
-                                <option value="1">EIP-1559</option>
+                                <option value="1" disabled={feeData?.maxFeePerGas ? false : true}>EIP-1559</option>
                             </select>
                         </div>
                         { !txType ?
                             <div className="flex flex-col sm:pl-6">
                                 <label className="text-slate-50 font-semibold pb-1">Gas Price</label>
-                                <input className="w-26 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={gasPrice} placeholder="20 (gwei)" type="number" onChange={e => setInputGasPrice(e.target.value)}></input>
+                                <input className="w-26 mb-5 pl-1 pr-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={gasPrice} placeholder={`${domLoaded ? feeData?.formatted.gasPrice : 0} (gwei)`} type="number" onChange={e => setInputGasPrice(e.target.value)}></input>
                             </div> :
                             <div className="flex flex-col sm:flex-row">
                                 <div className="flex flex-col mb-5 sm:pl-6">
                                     <label className="text-slate-50 font-semibold pb-1">Max Fee</label>
-                                    <input className="w-26 mb-5 pl-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={maxFee} placeholder="25 (gwei)" type="number" onChange={e => setInputMaxFee(e.target.value)}></input>
+                                    <input className="w-26 mb-5 pl-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={maxFee} placeholder={`${domLoaded ? feeData?.formatted.maxFeePerGas : 0} (gwei)`} type="number" onChange={e => setInputMaxFee(e.target.value)}></input>
                                 </div>
                                 <div className="flex flex-col sm:pl-6">
                                     <label className="text-slate-50 font-semibold pb-1">Max Priority Fee</label>
-                                    <input className="w-26 mb-5 pl-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={maxPriorityFee} placeholder="10 (gwei)" type="number" onChange={e => setInputMaxPriorityFee(e.target.value)}></input>
+                                    <input className="w-26 mb-5 pl-1 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" value={maxPriorityFee} placeholder={`${domLoaded ? feeData?.formatted.maxPriorityFeePerGas : 0} (gwei)`} type="number" onChange={e => setInputMaxPriorityFee(e.target.value)}></input>
                                 </div>
                             </div>
                         }

@@ -9,6 +9,14 @@ import { publicProvider } from 'wagmi/providers/public';
 
 const chainListSorted = JSON.parse(JSON.stringify(Object.values(chainList)))
 
+interface IRpcUrls {
+  [id: number]: string
+}
+
+export const rpcUrls: IRpcUrls = {}
+
+chainListSorted.map((chain: any) => rpcUrls[chain.id]=chain.rpcUrls.default.http[0])
+
 for (let chainIdx in chainListSorted) {
   // chainListSorted[chainIdx].rpcUrls.default.http = [`https://${process.env.VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
   chainListSorted[chainIdx].rpcUrls.public.http = [`https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/chains/${chainListSorted[chainIdx].id}`]
