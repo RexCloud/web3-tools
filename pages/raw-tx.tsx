@@ -26,7 +26,7 @@ const RawTx: NextPage = () => {
         target(input.replace(/[^xa-fA-F0-9]/g, ""))
     }
 
-    const { address } = useAccount()
+    const { address, isDisconnected } = useAccount()
 
     const { chain } = useNetwork()
     
@@ -75,6 +75,12 @@ const RawTx: NextPage = () => {
         getCurrentNonce()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [chain])
+
+    useEffect(() => {
+        if (!isDisconnected) return
+        setRawTx("")
+        setSignedTxs([])
+    }, [isDisconnected])
 
     useEffect(() => {
         if (!isLoading) return
@@ -230,7 +236,7 @@ const RawTx: NextPage = () => {
                             <label className="text-slate-50 font-semibold pb-1">Tx Type</label>
                             <select className="sm:w-24 mb-5 h-8 rounded-md text-slate-50 bg-slate-600 outline outline-slate-500 outline-1 focus:ring focus:outline-none" onChange={e => {setTxType(Number(e.target.value)); setInputGasPrice(""); setInputMaxFee(""); setInputMaxPriorityFee("")}}> 
                                 <option value="0">Legacy</option>
-                                <option value="1" disabled={feeData?.maxFeePerGas ? false : true}>EIP-1559</option>
+                                <option value="1" disabled={domLoaded && feeData?.maxFeePerGas ? false : true}>EIP-1559</option>
                             </select>
                         </div>
                         { !txType ?
