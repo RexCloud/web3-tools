@@ -93,7 +93,6 @@ const RawTx: NextPage = () => {
         delete txParams.account
         delete txParams.mode
         setTxParams(txParams)
-        console.log(signedTxs)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading])
 
